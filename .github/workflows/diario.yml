@@ -26,6 +26,7 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           FORZAR: "1"
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: python buscar_empleo.py
       - name: Guardar vacantes vistas
         run: |
