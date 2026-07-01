@@ -25,7 +25,7 @@ GMAIL_USER = os.environ["GMAIL_USER"]        # tu correo (remitente = destinatar
 GMAIL_PASS = os.environ["GMAIL_APP_PASSWORD"]  # App Password de Google (16 dígitos)
 
 PAIS = "mx"
-UBICACIONES = ["Tijuana", "Ensenada", "Rosarito", "Baja California"]
+UBICACIONES = ["Tijuana"]
 PUESTOS = [
     "representante medico",
     "visitador medico",
