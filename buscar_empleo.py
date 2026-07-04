@@ -344,13 +344,25 @@ Reglas:
 - Ordena el array de MAYOR fit_score a MENOR
 - Solo JSON, nada más"""
 
+    import time
+    modelos = ["gemini-2.0-flash-lite", "gemini-2.0-flash"]
+    r = None
+    for modelo in modelos:
+        try:
+            r = requests.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/"
+                f"{modelo}:generateContent?key={GEMINI_KEY}",
+                json={"contents": [{"parts": [{"text": prompt}]}]},
+                timeout=60,
+            )
+            if r.status_code == 429:
+                print(f"[warn] gemini {modelo}: 429, probando siguiente...")
+                time.sleep(5)
+                continue
+            break
+        except requests.RequestException:
+            continue
     try:
-        r = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/"
-            f"gemini-2.0-flash:generateContent?key={GEMINI_KEY}",
-            json={"contents": [{"parts": [{"text": prompt}]}]},
-            timeout=60,
-        )
         r.raise_for_status()
         texto = r.json()["candidates"][0]["content"]["parts"][0]["text"]
         texto = texto.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
