@@ -60,22 +60,56 @@ PATRONES_EXCLUIR = [
 
 # Resumen del CV para Gemini
 CV_RESUMEN = """
-Lorenzo Hugo Bracamontes Sambrano, 28 años, Tijuana B.C. Bilingüe español/inglés.
-Ingeniero químico (ITT 2015-2020). Estudiante de psicología (Universidad Humanitas).
+LORENZO HUGO BRACAMONTES SAMBRANO
+Representante Médico | Ventas | Bilingüe
+lorenzohugo33@gmail.com | +52 664 308 9446 | Tijuana, Baja California
 
-Experiencia:
-- Representante médico (Siegfried Rhein/Nutribaby, abr-jun 2026): cobertura 220+ médicos
-  en Tijuana/Ensenada/Rosarito, segmentación Efficientia, análisis market share, BR,
-  detalle de línea nutrición infantil (Nutribaby/Proteflor) a pediatras y neonatólogos.
-- Ventas técnicas industriales (First Quality Chemicals, jul 2025-may 2026): cartera de
-  clientes industriales en Baja California, presentaciones técnicas de productos químicos,
-  prospección en frío, negociación de contratos de suministro.
-- Docente de ciencias (IEMS Siglo XXI, sep 2020-ene 2024).
-- Ingeniero interno (Turbo Tecnologías, sep 2019-feb 2020): implementación SGA/NOM-005,
-  automatización con macros Excel.
+PERFIL PROFESIONAL
+Representante médico con experiencia en promoción farmacéutica, segmentación de médicos y ejecución de
+ciclos de visita en zonas de alta competencia (Tijuana, Ensenada, Rosarito). Orientado a resultados con habilidad
+para construir relaciones con prescriptores, analizar market share por producto, y comunicar beneficios clínicos
+de forma efectiva a profesionales de la salud. Base técnica sólida en ingeniería química aplicada al conocimiento
+de mecanismos de acción y composición de productos farmacéuticos.
 
-Competencias: detalle médico, segmentación de cartera, CRM, Excel avanzado (macros,
-dashboards), Power BI, SAP, programación básica, ISO 9001, 5S, NOM-005-STPS-1998.
+EXPERIENCIA PROFESIONAL
+Siegfried Rhein / Nutribaby | Representante Médico | ABR 2026 – Jun 2026
+- Ejecuté ciclos de visita médica con cobertura de más de 220 médicos en Tijuana, Ensenada y Rosarito.
+- Implementé segmentación de cartera médica bajo el modelo Efficientia (Defender/Atacar/Recuperar/Monitorear).
+- Realicé análisis de market share y tendencia de recetas por médico y por competidor.
+- Presenté información clínica de línea de nutrición infantil (Nutribaby/Proteflor) a pediatras y neonatólogos.
+- Coordiné Business Reviews con datos de crecimiento de recetas y análisis de competidores.
+
+First Quality Chemicals | Representante de Ventas Técnicas | JUL 2025 – MAY 2026
+- Gestioné y expandí cartera de clientes industriales en Baja California y estados adyacentes.
+- Conduje presentaciones técnicas sobre productos químicos especializados ante tomadores de decisión.
+- Prospecté nuevos clientes mediante llamadas en frío y visitas sin cita, cerrando contratos de suministro.
+- Negocié condiciones comerciales y mantuve seguimiento post-venta.
+
+Ventas Rachel | Ejecutivo de Ventas | ENE 2024 – FEB 2025
+- Desarrollé campañas de adquisición de clientes vía Facebook Ads.
+- Negocié y cerré transacciones de venta directa, ciclo completo desde prospección hasta cierre.
+
+Instituto de Enseñanza Media Superior Siglo XXI | Docente de Ciencias | SEP 2020 – ENE 2024
+- Diseñé programas académicos y conduje clases para grupos de hasta 40 estudiantes.
+- Implementé métricas de seguimiento académico con dashboards en Excel.
+
+Turbo Tecnologías de Reparaciones | Ingeniero Interno | SEP 2019 – FEB 2020
+- Implementé el sistema globalmente armonizado (SGA) bajo la NOM-005-STPS-1998.
+- Automaticé captura de datos termoquímicos mediante macros de Excel.
+
+EDUCACIÓN
+Licenciatura en Psicología – Universidad Humanitas, Tijuana | 2024 – Actualidad
+Ingeniería Química – Instituto Tecnológico de Tijuana | 2015 – 2020
+Técnico en Administración de Empresas – IEMS Siglo XXI | 2012 – 2015
+
+COMPETENCIAS CLAVE
+Detalle médico, Segmentación de cartera, Market share y análisis de recetas, KOL management,
+Ciclos de visita, Gestión de territorio, CRM y reporting, Presentaciones clínicas, Negociación,
+Prospección en frío, Bilingüe (Español/Inglés), Power BI, Excel avanzado (macros, dashboards),
+SAP, Ingeniería química aplicada, Programación básica.
+
+CERTIFICACIONES
+NOM-005-STPS-1998, ISO 9001, Metodología 5S, Metodología Efficientia, Licencia de manejo vigente.
 
 Busca: representante médico, visitador médico, ventas médicas/farmacéuticas, planner,
 quality engineer, NPI engineer, sterilization engineer (nivel C o 1).
@@ -226,7 +260,8 @@ Para cada vacante responde en JSON (sin markdown, sin backticks):
     "indice": 1,
     "experiencia_estimada": "0-1 año",
     "fit_score": 85,
-    "recomendacion": "Frase corta de por qué sí o no aplicar"
+    "recomendacion": "Frase corta de por qué sí o no aplicar",
+    "carta": "Mensaje corto para pegar al aplicar"
   }}
 ]
 
@@ -234,6 +269,7 @@ Reglas:
 - experiencia_estimada: lo que pide la vacante (ej: "sin experiencia", "0-1 año", "1-2 años", "3+ años", "no especifica")
 - fit_score: 0-100 qué tan bien encaja el candidato
 - recomendacion: máximo 15 palabras
+- carta: máximo 40 palabras, en español, lista para copiar y pegar en la casilla de "mensaje al reclutador". Debe mencionar el puesto específico y 1 fortaleza relevante del candidato para ESA vacante. Sin saludo genérico, sin "estimado/a", sin despedida. Directo.
 - Ordena el array de MAYOR fit_score a MENOR
 - Solo JSON, nada más"""
 
@@ -268,6 +304,7 @@ Reglas:
             v["exp_estimada"] = a.get("experiencia_estimada", "?")
             v["fit_score"] = a.get("fit_score", 50)
             v["recomendacion"] = a.get("recomendacion", "")
+            v["carta"] = a.get("carta", "")
 
         # Ordenar por fit_score descendente
         vacantes.sort(key=lambda x: x.get("fit_score", 0), reverse=True)
@@ -278,6 +315,7 @@ Reglas:
             v.setdefault("exp_estimada", "?")
             v.setdefault("fit_score", 50)
             v.setdefault("recomendacion", "")
+            v.setdefault("carta", "")
 
     return vacantes
 
@@ -313,6 +351,14 @@ def construir_html(nuevas):
               {f'<div style="color:#333;margin-top:4px;font-style:italic;">💡 {reco}</div>' if reco else ''}
             </div>"""
 
+        carta = j.get("carta", "")
+        carta_html = ""
+        if carta:
+            carta_html = f"""
+            <div style="margin:6px 0;padding:8px 10px;background:#eef6ff;border-left:3px solid #39f;border-radius:4px;font-size:12px;color:#222;">
+              📋 <strong>Copiar y pegar:</strong><br>{carta}
+            </div>"""
+
         cards += f"""
         <div style="border:1px solid #e2e2e2;border-radius:10px;padding:16px;margin-bottom:14px;">
           <div style="font-size:11px;color:#0a7;font-weight:600;text-transform:uppercase;">{j['fuente']}</div>
@@ -320,6 +366,7 @@ def construir_html(nuevas):
           <div style="font-size:13px;color:#555;margin:4px 0;">{j['empresa']} · {j['ubicacion']}{fecha}</div>
           {gemini_html}
           <div style="font-size:13px;color:#333;margin-bottom:10px;">{j['desc']}&hellip;</div>
+          {carta_html}
           {botones}
         </div>"""
 
