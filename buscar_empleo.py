@@ -28,8 +28,6 @@ ADZUNA_KEY = os.environ["ADZUNA_APP_KEY"]
 GMAIL_USER = os.environ["GMAIL_USER"]
 GMAIL_PASS = os.environ["GMAIL_APP_PASSWORD"]
 SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
-GOOGLE_CSE_KEY = os.environ.get("GOOGLE_CSE_KEY")   # API key de Google Cloud
-GOOGLE_CSE_CX = os.environ.get("GOOGLE_CSE_CX")     # Search Engine ID
 GEMINI_KEY = os.environ.get("GEMINI_KEY")
 
 PAIS = "mx"
@@ -60,25 +58,27 @@ PATRONES_EXCLUIR = [
     r"\b(senior|sr\.?|lead|nivel\s*a|nivel\s*b|level\s*a|level\s*b)\b",
 ]
 
-SITIOS_PORTALES = [
-    "occ.com.mx",
-    "computrabajo.com.mx",
-    "indeed.com.mx",
-    "linkedin.com/jobs",
-    "empleonuevo.com.mx",
-]
-
 # Resumen del CV para Gemini
 CV_RESUMEN = """
-Lorenzo Hugo Bracamontes Sambrano, 28 años, Tijuana B.C.
-Representante médico / visitador médico con experiencia en territorio 1120773NU
-(Tijuana, Ensenada, Rosarito). Línea de nutrición pediátrica: Tri-Vi-Sol, Poly-Vi-Sol,
-Fer-In-Sol, D-Vi-Sol, Poly Vi Gomis, Pretelina, Proteflor, Nutribaby.
-Experiencia en segmentación Efficientia, Business Reviews con DataFarma,
-manejo de CRM con 179+ médicos. Formación en ingeniería química.
-Ventas industriales previas (First Quality Chemicals — persulfatos).
-Experiencia docente y administrativa. Estudiante de psicología (4to trimestre).
-Busca: representante médico, visitador médico, ventas médicas/farmacéuticas.
+Lorenzo Hugo Bracamontes Sambrano, 28 años, Tijuana B.C. Bilingüe español/inglés.
+Ingeniero químico (ITT 2015-2020). Estudiante de psicología (Universidad Humanitas).
+
+Experiencia:
+- Representante médico (Siegfried Rhein/Nutribaby, abr-jun 2026): cobertura 220+ médicos
+  en Tijuana/Ensenada/Rosarito, segmentación Efficientia, análisis market share, BR,
+  detalle de línea nutrición infantil (Nutribaby/Proteflor) a pediatras y neonatólogos.
+- Ventas técnicas industriales (First Quality Chemicals, jul 2025-may 2026): cartera de
+  clientes industriales en Baja California, presentaciones técnicas de productos químicos,
+  prospección en frío, negociación de contratos de suministro.
+- Docente de ciencias (IEMS Siglo XXI, sep 2020-ene 2024).
+- Ingeniero interno (Turbo Tecnologías, sep 2019-feb 2020): implementación SGA/NOM-005,
+  automatización con macros Excel.
+
+Competencias: detalle médico, segmentación de cartera, CRM, Excel avanzado (macros,
+dashboards), Power BI, SAP, programación básica, ISO 9001, 5S, NOM-005-STPS-1998.
+
+Busca: representante médico, visitador médico, ventas médicas/farmacéuticas, planner,
+quality engineer, NPI engineer, sterilization engineer (nivel C o 1).
 Zona: Baja California. Disponibilidad inmediata.
 """
 
@@ -191,115 +191,6 @@ def buscar_google_jobs():
                 "enlaces": enlaces,
                 "texto_completo": desc,
             }
-    return encontradas
-
-
-# ---------- Fuente 3: Google Custom Search (site: operators) ----------
-
-def construir_query_google():
-    """Query combinada con OR para puestos. Los sitios ya están en el CSE."""
-    puestos_q = " OR ".join(f'"{p}"' for p in [
-        "representante médico", "visitador médico",
-        "ventas médicas", "ventas farmacéuticas",
-        "representante farmacéutico",
-        "planner", "quality engineer",
-        "NPI engineer", "sterilization engineer",
-    ])
-    return f'({puestos_q}) "tijuana"'
-
-
-def extraer_texto_pagina(url):
-    """Intenta descargar la página y extraer texto. Graceful fallback."""
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                       "AppleWebKit/537.36 (KHTML, like Gecko) "
-                       "Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language": "es-MX,es;q=0.9",
-    }
-    try:
-        r = requests.get(url, headers=headers, timeout=15, allow_redirects=True)
-        if r.status_code != 200:
-            return None
-        # Extraer texto limpio del HTML
-        texto = re.sub(r"<script[^>]*>.*?</script>", "", r.text, flags=re.DOTALL | re.I)
-        texto = re.sub(r"<style[^>]*>.*?</style>", "", texto, flags=re.DOTALL | re.I)
-        texto = re.sub(r"<[^>]+>", " ", texto)
-        texto = re.sub(r"\s+", " ", texto).strip()
-        return texto[:3000] if texto else None
-    except Exception:
-        return None
-
-
-def detectar_portal(url):
-    for sitio in SITIOS_PORTALES:
-        dominio = sitio.split("/")[0]
-        if dominio in url:
-            return dominio.replace(".com.mx", "").replace(".com", "").upper()
-    return "WEB"
-
-
-def buscar_google_cse():
-    """Busca en Google con operadores site: vía Custom Search JSON API."""
-    if not GOOGLE_CSE_KEY or not GOOGLE_CSE_CX:
-        return {}
-
-    query = construir_query_google()
-    print(f"[google-cse] query: {query[:120]}...")
-
-    encontradas = {}
-    # Google CSE devuelve max 10 por página; hacemos 2 páginas = 20 resultados
-    for start in [1, 11]:
-        params = {
-            "key": GOOGLE_CSE_KEY,
-            "cx": GOOGLE_CSE_CX,
-            "q": query,
-            "num": 10,
-            "start": start,
-            "lr": "lang_es",
-            "cr": "countryMX",
-            "dateRestrict": f"d{MAX_DIAS}",
-            "gl": "mx",
-        }
-        try:
-            r = requests.get(
-                "https://www.googleapis.com/customsearch/v1",
-                params=params, timeout=30,
-            )
-        except requests.RequestException as e:
-            print(f"[warn] google-cse start={start}: {e}")
-            continue
-        if r.status_code != 200:
-            print(f"[warn] google-cse start={start}: {r.status_code} {r.text[:500]}")
-            continue
-
-        for item in r.json().get("items", []):
-            url = item.get("link", "")
-            jid = "cse-" + str(abs(hash(url)))[:12]
-            if jid in encontradas:
-                continue
-            titulo = limpia(item.get("title", ""))
-            snippet = limpia(item.get("snippet", ""))
-            portal = detectar_portal(url)
-
-            # Scouting: intentar entrar a la página
-            texto_pagina = extraer_texto_pagina(url)
-            texto_analisis = texto_pagina or snippet
-
-            if not cumple_experiencia(texto_analisis, titulo):
-                continue
-
-            encontradas[jid] = {
-                "id": jid, "titulo": titulo,
-                "empresa": "N/D",
-                "ubicacion": "Tijuana",
-                "desc": snippet[:280],
-                "fecha": "",
-                "fuente": f"Portal: {portal}",
-                "enlaces": [(f"Aplicar en {portal}", url)],
-                "texto_completo": texto_analisis[:3000],
-                "scouting_ok": texto_pagina is not None,
-            }
-    print(f"[google-cse] {len(encontradas)} resultados tras filtros")
     return encontradas
 
 
@@ -422,20 +313,9 @@ def construir_html(nuevas):
               {f'<div style="color:#333;margin-top:4px;font-style:italic;">💡 {reco}</div>' if reco else ''}
             </div>"""
 
-        # Indicador de scouting
-        scouting = j.get("scouting_ok")
-        scout_badge = ""
-        if scouting is True:
-            scout_badge = '<span style="font-size:10px;color:#0a7;">✓ analizada</span>'
-        elif scouting is False:
-            scout_badge = '<span style="font-size:10px;color:#999;">snippet only</span>'
-
         cards += f"""
         <div style="border:1px solid #e2e2e2;border-radius:10px;padding:16px;margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:11px;color:#0a7;font-weight:600;text-transform:uppercase;">{j['fuente']}</span>
-            {scout_badge}
-          </div>
+          <div style="font-size:11px;color:#0a7;font-weight:600;text-transform:uppercase;">{j['fuente']}</div>
           <div style="font-size:16px;font-weight:600;color:#111;margin-top:2px;">{j['titulo']}</div>
           <div style="font-size:13px;color:#555;margin:4px 0;">{j['empresa']} · {j['ubicacion']}{fecha}</div>
           {gemini_html}
@@ -484,7 +364,6 @@ def main():
     todas = {}
     todas.update(buscar_adzuna())
     todas.update(buscar_google_jobs())
-    todas.update(buscar_google_cse())
 
     nuevas = [j for jid, j in todas.items() if jid not in vistos]
 
