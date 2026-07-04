@@ -265,9 +265,11 @@ def buscar_google_cse():
                 "https://www.googleapis.com/customsearch/v1",
                 params=params, timeout=30,
             )
-            r.raise_for_status()
         except requests.RequestException as e:
             print(f"[warn] google-cse start={start}: {e}")
+            continue
+        if r.status_code != 200:
+            print(f"[warn] google-cse start={start}: {r.status_code} {r.text[:500]}")
             continue
 
         for item in r.json().get("items", []):
