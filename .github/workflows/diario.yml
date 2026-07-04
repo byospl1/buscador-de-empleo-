@@ -26,8 +26,6 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-          GOOGLE_CSE_KEY: ${{ secrets.GOOGLE_CSE_KEY }}
-          GOOGLE_CSE_CX: ${{ secrets.GOOGLE_CSE_CX }}
           GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
         run: python buscar_empleo.py
       - name: Guardar vacantes vistas
